@@ -6,8 +6,11 @@ import com.gargoylesoftware.htmlunit.html.DomNodeList;
 import com.gargoylesoftware.htmlunit.html.HtmlInput;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
+import com.li.bean.JobCorrect;
 import com.li.bean.Userz;
+import com.li.httpclient.GalaJobRequest;
 import com.li.httpclient.SendHttpRequest;
+import com.li.listener.ServerListener;
 import com.li.service.UserzService;
 import com.li.serviceImpl.UserzServiceImpl;
 import com.li.utils.Tools;
@@ -31,10 +34,14 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("user")
 public class User {
 
+    final static Map<String, String> teachersSessionIdMap = ServerListener.map;
     private Timer timer = null;
     private static boolean openSignFlag = true;
 
     private boolean loginFlag = true;
+
+    @Autowired
+    GalaJobRequest galaJobRequest;
 
     @Autowired
     SendHttpRequest sendHttpRequest;
@@ -179,6 +186,14 @@ public class User {
                 @Override
                 public void run() {
                     List<Userz> users = userzService.selectOpenedUserSess();
+
+                    try {
+
+                        galaJobRequest.getJobCorrectInfo(teachersSessionIdMap);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                     if (!users.isEmpty()) {
 
                         //晚上1点更新所有开启签到的session
@@ -204,6 +219,7 @@ public class User {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+
                         Tools.logs(Tools.GXSS, Tools.getTime() + "------成功执行------");
                     }
                 }

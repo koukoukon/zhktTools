@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+
+    <button id="btn">按下</button>
+    <img id="im" src="images/h_bj.png"/>
+
+<script>
+    
+    $("#btn").on("click",function () {
+        $("#im").fadeToggle(800);
+    })
+
+    $.get("sd",function (data) {
+
+    })
+    
+</script>
+
+</body>
+</html>

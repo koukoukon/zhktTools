@@ -63,7 +63,7 @@ public class Tools {
 
     }
 
-    public String[] bhL(String xml) throws DocumentException {
+    public static String[] bhL(String xml) throws DocumentException {
 
         String[] str = new String[2];
         Document doc = DocumentHelper.parseText(xml);

@@ -1,17 +1,26 @@
 package com.li.test;
 
+import com.gargoylesoftware.htmlunit.*;
+import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.DomNodeList;
+import com.gargoylesoftware.htmlunit.html.HtmlInput;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.google.gson.Gson;
 import com.li.bean.ClassBean;
+import com.li.bean.Userz;
 import com.li.httpclient.GalaJobRequest;
 import com.li.httpclient.SendHttpRequest;
 import com.li.mapper.UserzMapper;
 import com.li.service.UserzService;
 import com.li.serviceImpl.UserzServiceImpl;
 import com.li.utils.Tools;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -27,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.annotation.Resource;
+import java.net.URL;
 import java.util.*;
 
 public class httpTest {
@@ -151,5 +161,93 @@ public class httpTest {
 //
 //        }
 //    }
+
+    @Test
+    public void signTest() throws Exception {
+
+        CloseableHttpClient client = HttpClients.createDefault();
+        String url1 = "http://zhkt.zmdvtc.cn/zhjx/servlet/ServletXskq?commandType=zb_getList&time=1587742250499&zfj=%D6%D0&cssl=7&cslist=1&cslist=1&cslist=_kqzb.id,-kongge-_kqmx.id,-kongge-_kqzb.qdfs&cslist=-jinhao-DQXQ-jinhao--kongge-$a-n-d$-kongge-_kqmx.qdsj-kongge-is-kongge-null-kongge-$a-n-d$-kongge-_kqmx.id_xs=-danyinhao_en-18141301003-danyinhao_en--kongge-$a-n-d$-kongge-_kqzb.zt=-danyinhao_en--jinhao-ZT_JXZ-jinhao--danyinhao_en--kongge-$a-n-d$-kongge-_kqzb.id_kt=-danyinhao_en-00200209212655617001-danyinhao_en-&cslist=_kqzb.id-kongge-desc&cslist=&cslist=00200209212655617001";
+
+        HttpPost getBhPost = new HttpPost(url1);
+        getBhPost.addHeader(new BasicHeader("User-Agent", "mozilla/5.0 (linux; u; android 4.1.2; zh-cn; mi-one plus build/jzo54k) applewebkit/534.30 (khtml, like gecko) version/4.0 mobile safari/534.30 micromessenger/5.0.1.352"));
+        getBhPost.addHeader(new BasicHeader("Cookie","JSESSIONID=EE369F56E49FB3A10E777AC71A7DD7EB"));
+        getBhPost.addHeader(new BasicHeader("Referer","http://zhkt.zmdvtc.cn/zhjx/pages/weixin/shouye_xs.jsp?cslist=backpage=/zhjx/pages/weixin/kthd_xs/dmInfo_wx.jsp"));
+
+        HttpResponse response = client.execute(getBhPost);
+        HttpEntity en = response.getEntity();
+        String string = EntityUtils.toString(en, "UTF-8");
+        client.close();
+        if (response.getStatusLine().getStatusCode() == 200) {
+            System.out.println(string);
+        }
+    }
+
+    @Test
+    public void htmlTest() throws Exception{
+        SendHttpRequest sendHttpRequest = new SendHttpRequest();
+        Map<String, String> ktList = sendHttpRequest.getKtList("EE369F56E49FB3A10E777AC71A7DD7EB", "18141301003");
+        System.out.println(ktList);
+    }
+
+    private static void initWebClient(WebClient webClient) {
+        webClient.getOptions().setJavaScriptEnabled(true);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setRedirectEnabled(true);
+        webClient.setCookieManager(new CookieManager());
+        webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+        webClient.getOptions().setThrowExceptionOnScriptError(false);
+//        webClient.getCookieManager().addCookie(new Cookie("/","JSESSIONID","76C4949DC3DEC49C5A070C789E87C517"));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Test
+    public void testQD() throws Exception{
+        CloseableHttpClient client = HttpClients.createDefault();
+        String url2 = "http://zhkt.zmdvtc.cn/zhjx/servlet/ServletXskq?commandType=wx_xsqd&cssl=4&cslist=" + "0020042423442232500231" + "&cslist=" + "00200424234422325001" + "&cslist=&cslist=%C6%D5%CD%A8&time=" + Tools.time() + "&zfj=%D6%D0";
+
+        HttpPost httpPost = new HttpPost(url2);
+        httpPost.addHeader(new BasicHeader("User-Agent","mozilla/5.0 (linux; u; android 4.1.2; zh-cn; mi-one plus build/jzo54k) applewebkit/534.30 (khtml, like gecko) version/4.0 mobile safari/534.30 micromessenger/5.0.1.352"));
+        httpPost.addHeader(new BasicHeader("Cookie","JSESSIONID=9A7D68EBAC90453DA3D7D0A0A47B4936"));
+        httpPost.addHeader(new BasicHeader("Referer","http://zhkt.zmdvtc.cn/zhjx/pages/weixin/kthd_xs/dmInfo_wx.jsp?cslist=backpage=/zhjx/pages/weixin/shouye_xs.jsp;kqzbid=" + "00200424234422325001" + ";kqmxid=" + "0020042423442232500231" + ";qdfs=%E6%99%AE%E9%80%9A"));
+
+        HttpResponse response = client.execute(httpPost);
+        HttpEntity en = response.getEntity();
+        String string = EntityUtils.toString(en, "utf-8");
+
+        client.close();
+        if (response.getStatusLine().getStatusCode() == 200) {
+
+            Document doc = DocumentHelper.parseText(string);
+            Element rootElement = doc.getRootElement();
+            Element result = rootElement.element("result");
+            if ("1".equals(result.getText()) || "1" == result.getText() || Integer.valueOf(result.getText()) == 1) {
+                Tools.logs(Tools.ZZQD,  Tools.getTime() + "---签到成功---响应实体：" + string + "---SESS---");
+//                System.out.println("签到成功");
+            } else {
+                Tools.logs(Tools.ZZQD,  Tools.getTime() + "---签到失败---响应实体：" + string + "---SESS---"  );
+//                System.out.println("签到失败");
+            }
+
+        }else {
+            Tools.logs(Tools.ZZQD, Tools.getTime() + "---签到时连接不通---响应实体：" + string + "---SESS:");
+//            System.out.println("---签到时连接不通---响应实体：" + string + "---SESS---:" + sess + "\n");
+        }
+    }
+
+
+
+
 
 }

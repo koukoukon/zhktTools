@@ -7,6 +7,16 @@ import com.li.bean.JobCorrect;
 import com.li.bean.JobInfo;
 import com.li.httpclient.GalaJobRequest;
 import com.li.listener.ServerListener;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -127,22 +137,32 @@ public class JobTest {
     }
 
     @Test
-    public void testThread(){
+    public void testThread() throws Exception{
 
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println(1);
-            }
-        },0,2000);
+        CloseableHttpClient client = HttpClients.createDefault();
+        List<JobInfo> jobInfos = new ArrayList<>();
+        ArrayList<NameValuePair> formList = new ArrayList<>();
+        formList.add(new BasicNameValuePair("classId", "151"));
+        formList.add(new BasicNameValuePair("SubjectId", "252"));
+        formList.add(new BasicNameValuePair("page", "1"));
+        formList.add(new BasicNameValuePair("rows", "1000"));
 
+        UrlEncodedFormEntity rqeEntity = new UrlEncodedFormEntity(formList, "utf-8");
+        rqeEntity.setContentType("application/x-www-form-urlencoded;charset=UTF-8");
 
-        try {
-            Thread.sleep(2000000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        HttpPost post = new HttpPost("https://www.galayun.com/Admin/AssignWork/list");
+        HttpPost post = new HttpPost("https://www.galayun.com/Admin/AssignWork/IndexList");
+        post.addHeader(new BasicHeader("Cookie", "ASP.NET_SessionId=cuzue2yl0rrfz5rw3jljfccw; Himall-EmployeeManager=c04veXhHWE5aNUpmUWM5a1hmNTRQcFJiV1htY3czaW5EQmJsTVVKVjFMS3djTUYxNkRBczh5aTE4cTVpR2ZON3RBMGR2a2tHbmE2TWRvbTBIR1JKbGc9PQ==; Himall-PlatformManager=c04veXhHWE5aNUpmUWM5a1hmNTRQcFJiV1htY3czaW5EQmJsTVVKVjFMS1NqSjNoZjZhcjlEOTROWE1FckhxQnZtTzlYa056dTV2RVFmM2Z5OGdlQ2c9PQ=="));
+        post.setHeader("Connection", "keep-alive");
+        post.setEntity(rqeEntity);
+        HttpResponse response = client.execute(post);
+        HttpEntity entity = response.getEntity();
+        String mes = EntityUtils.toString(entity, "utf-8");
+        System.out.println(mes);
+        Gson gson = new Gson();
+        JobInfo jobInfo = gson.fromJson(mes, JobInfo.class);
+        client.close();
+        System.out.println(jobInfo);
     }
 
 }

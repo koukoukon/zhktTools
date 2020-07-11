@@ -37,8 +37,9 @@ public class GalaxyJonServiceImpl implements GalaxyJobService {
         List<JobInfo.RowsBean> rows = jobInfo1.getRows();
 
 //        for (JobInfo.RowsBean r: rows) {
-//            System.out.println(r);
+//            System.out.println(1);
 //        }
+
         JobInfo.RowsBean endRowsBean = null;
         Map<String, String> countMap = new HashMap<>();
 
@@ -47,26 +48,27 @@ public class GalaxyJonServiceImpl implements GalaxyJobService {
         if (rows.size() != 0) {
             endRowsBean = rows.get(rows.size() - 1);
         }
-//        System.out.println(endRowsBean);
+
         List<JobCorrect> jobCorrectInfo = galaJobRequest.getJobCorrectInfo(sessMap);
 
         Integer maxNumbFlag = 0;
         String id = null;
-
+        String chapterId = "第一次";
         if (endRowsBean == null && jobCorrectInfo.size() == 0) {
             return null;
         } else if (endRowsBean == null && jobCorrectInfo.size() != 0) {
             for (JobCorrect j:jobCorrectInfo){
                 List<JobCorrect.RowsBean> rows1 = j.getRows();
+                System.out.println(rows1);
                 for (JobCorrect.RowsBean r:rows1) {
-
                     if ((r.getSubject().trim()).equals(majorName.trim()) && (r.getClassId().trim()).equals(className.trim())) {
                         if (r.getCid() > maxNumbFlag) {
                             maxNumbFlag = r.getCid();
                             id = String.valueOf(r.getId());
+                            chapterId = r.getChapterId();
                         }
                         countMap.put("jobId",String.valueOf(maxNumbFlag));
-                        countMap.put("count",r.getSubject());
+                        countMap.put("count",chapterId);
                         countMap.put("id",id);
                     }
                 }
@@ -93,7 +95,7 @@ public class GalaxyJonServiceImpl implements GalaxyJobService {
             }
         }
 
-        if (rowsBeans.size() == 0) {
+        if (rowsBeans.size() == 0 && endRowsBean != null) {
             countMap.put("jobId", String.valueOf(endRowsBean.getChapterId()));
             countMap.put("count",endRowsBean.getSortId());
             countMap.put("id",String.valueOf(endRowsBean.getId()));
@@ -108,7 +110,6 @@ public class GalaxyJonServiceImpl implements GalaxyJobService {
         for (ChapterInfo c: countJobInfo) {
             c.setJobId(jobId++);
         }
-
         return countJobInfo;
     }
 

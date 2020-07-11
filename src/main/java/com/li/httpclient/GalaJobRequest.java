@@ -32,13 +32,14 @@ public class GalaJobRequest {
         UrlEncodedFormEntity rqeEntity = new UrlEncodedFormEntity(formList, "utf-8");
         rqeEntity.setContentType("application/x-www-form-urlencoded;charset=UTF-8");
 
-        HttpPost post = new HttpPost("http://www.galayun.com/Admin/Class/list");
+        HttpPost post = new HttpPost("https://www.galayun.com/Admin/Class/list");
         post.addHeader(new BasicHeader("Cookie", sess));
         post.setHeader("Connection", "keep-alive");
         post.setEntity(rqeEntity);
         HttpResponse response = client.execute(post);
         HttpEntity entity = response.getEntity();
         String mes = EntityUtils.toString(entity, "utf-8");
+//        System.out.println(mes);
         client.close();
         Gson gson = new Gson();
         ClassBean classBean = gson.fromJson(mes, ClassBean.class);
@@ -69,7 +70,7 @@ public class GalaJobRequest {
 
         while (iterator.hasNext()){
             String key = iterator.next();
-            HttpPost post = new HttpPost("http://www.galayun.com/Admin/AssignWork/GetSubjectsByClassId");
+            HttpPost post = new HttpPost("https://www.galayun.com/Admin/AssignWork/GetSubjectsByClassId");
             post.addHeader(new BasicHeader("Cookie", sessMap.get(key)));
             post.setHeader("Connection", "keep-alive");
             post.setEntity(rqeEntity);
@@ -104,7 +105,7 @@ public class GalaJobRequest {
         UrlEncodedFormEntity rqeEntity = new UrlEncodedFormEntity(formList, "utf-8");
         rqeEntity.setContentType("application/x-www-form-urlencoded;charset=UTF-8");
 
-        HttpPost post = new HttpPost("http://www.galayun.com/Admin/AssignWork/list");
+        HttpPost post = new HttpPost("https://www.galayun.com/Admin/AssignWork/list");
         post.addHeader(new BasicHeader("Cookie", sess));
         post.setHeader("Connection", "keep-alive");
         post.setEntity(rqeEntity);
@@ -134,7 +135,7 @@ public class GalaJobRequest {
 
         while (iterator.hasNext()){
             String key = iterator.next();
-            HttpPost post = new HttpPost("http://www.galayun.com/Admin/AssignWork/IndexList");
+            HttpPost post = new HttpPost("https://www.galayun.com/Admin/AssignWork/IndexList");
             post.addHeader(new BasicHeader("Cookie", sessMap.get(key)));
             post.setHeader("Connection", "keep-alive");
             post.setEntity(rqeEntity);
@@ -145,7 +146,6 @@ public class GalaJobRequest {
             JobCorrect jobCorrect = gson.fromJson(mes, JobCorrect.class);
             jobCorrects.add(jobCorrect);
         }
-
         client.close();
         return jobCorrects;
     }
@@ -160,7 +160,7 @@ public class GalaJobRequest {
             UrlEncodedFormEntity rqeEntity = new UrlEncodedFormEntity(formList, "utf-8");
             rqeEntity.setContentType("application/x-www-form-urlencoded;charset=UTF-8");
 
-            HttpPost post = new HttpPost("http://www.galayun.com/Admin/AssignWork/AssignDetail");
+            HttpPost post = new HttpPost("https://www.galayun.com/Admin/AssignWork/AssignDetail");
             post.addHeader(new BasicHeader("Cookie", sess));
             post.setHeader("Connection", "keep-alive");
             post.setEntity(rqeEntity);
@@ -173,10 +173,10 @@ public class GalaJobRequest {
                 classBeans.add(chapterInfo);
             }
         }
-
         client.close();
         return classBeans;
     }
+
 
     public String getAnswer(String chapterId, String sess) throws Exception{
         CloseableHttpClient client = HttpClients.createDefault();
@@ -186,7 +186,7 @@ public class GalaJobRequest {
         UrlEncodedFormEntity rqeEntity = new UrlEncodedFormEntity(formList, "utf-8");
         rqeEntity.setContentType("application/x-www-form-urlencoded;charset=UTF-8");
 
-        HttpPost post = new HttpPost("http://www.galayun.com/Admin/AssignWork/AnswerDetail");
+        HttpPost post = new HttpPost("https://www.galayun.com/Admin/AssignWork/AnswerDetail");
         post.addHeader(new BasicHeader("Cookie", sess));
         post.setHeader("Connection", "keep-alive");
         post.setEntity(rqeEntity);

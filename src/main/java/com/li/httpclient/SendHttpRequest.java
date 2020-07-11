@@ -1,6 +1,8 @@
 package com.li.httpclient;
 
 import com.li.utils.Tools;
+import java.net.URI;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -16,7 +18,6 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,11 +26,11 @@ import java.util.Map;
 @Component
 public class SendHttpRequest {
 
-    static Object o = new Object();
 
     public Map<String,String> queryUserInfo(String sess) throws Exception {
 
         CloseableHttpClient client = HttpClients.createDefault();
+
         String[] str = {"yhmc","yhlx"};
         Map<String, String> map = new HashMap<>();
 
@@ -70,38 +71,48 @@ public class SendHttpRequest {
 
     public void signIn(String ac, String sess) throws Exception{
         CloseableHttpClient client = HttpClients.createDefault();
-        String url1 = "http://zhkt.zmdvtc.cn/zhjx/servlet/ServletXskq?commandType=zb_getList&cssl=6&cslist=1&cslist=1&cslist=_kqzb.id,-kongge-_kqmx.id,-kongge-_kqzb.qdfs&cslist=-jinhao-DQXQ-jinhao--kongge-$a-n-d$-kongge-_kqmx.qdsj-kongge-is-kongge-null-kongge-$a-n-d$-kongge-_kqmx.id_xs=-danyinhao_en-" + ac + "-danyinhao_en--kongge-$a-n-d$-kongge-_kqzb.zt=-danyinhao_en--jinhao-ZT_JXZ-jinhao--danyinhao_en-&cslist=_kqzb.id-kongge-desc&cslist=&time=" + Tools.time() + "&zfj=%D6%D0";
 
-        HttpPost getBhPost = new HttpPost(url1);
+        HttpPost getBhPost = new HttpPost();
 
         getBhPost.addHeader(new BasicHeader("User-Agent","mozilla/5.0 (linux; u; android 4.1.2; zh-cn; mi-one plus build/jzo54k) applewebkit/534.30 (khtml, like gecko) version/4.0 mobile safari/534.30 micromessenger/5.0.1.352"));
         getBhPost.addHeader(new BasicHeader("Cookie",sess));
         getBhPost.addHeader(new BasicHeader("Referer","http://zhkt.zmdvtc.cn/zhjx/pages/weixin/shouye_xs.jsp?cslist=backpage=/zhjx/pages/weixin/kthd_xs/dmInfo_wx.jsp"));
+        Map<String, String> ktList = getKtList(sess, ac);
 
-        HttpResponse response = client.execute(getBhPost);
-        HttpEntity en = response.getEntity();
-        String string = EntityUtils.toString(en, "UTF-8");
-        client.close();
-        if (response.getStatusLine().getStatusCode() == 200) {
 
-            Tools tools = new Tools();
-            String[] bhL = tools.bhL(string);
+        for (Map.Entry<String, String> entry: ktList.entrySet()) {
+            URI uri = new URI("http://zhkt.zmdvtc.cn/zhjx/servlet/ServletXskq?commandType=zb_getList&time="+ Tools.time() +"&zfj=%D6%D0&cssl=7&cslist=1&cslist=1&cslist=_kqzb.id,-kongge-_kqmx.id,-kongge-_kqzb.qdfs&cslist=-jinhao-DQXQ-jinhao--kongge-$a-n-d$-kongge-_kqmx.qdsj-kongge-is-kongge-null-kongge-$a-n-d$-kongge-_kqmx.id_xs=-danyinhao_en-"+ ac +"-danyinhao_en--kongge-$a-n-d$-kongge-_kqzb.zt=-danyinhao_en--jinhao-ZT_JXZ-jinhao--danyinhao_en--kongge-$a-n-d$-kongge-_kqzb.id_kt=-danyinhao_en-" + entry.getValue() + "-danyinhao_en-&cslist=_kqzb.id-kongge-desc&cslist=&cslist=" + entry.getValue());
+            getBhPost.setURI(uri);
+            HttpResponse response = client.execute(getBhPost);
+            HttpEntity en = response.getEntity();
+            String string = EntityUtils.toString(en, "UTF-8");
 
-            if (bhL[0] == null || bhL[0] == "") {
-                Tools.logs(Tools.KQQDZS, Tools.getTime() + "---进入签到---响应实体：" + string + "---SESS:" + sess + "\n\n");
+            if (response.getStatusLine().getStatusCode() == 200) {
+
+                String[] bhL = Tools.bhL(string);
+
+                if (bhL[0] == null || bhL[0] == "") {
+                    Tools.logs(Tools.KQQDZS, Tools.getTime() + "---进入签到---响应实体：" + string + "---SESS:" + sess + "\n\n");
 //                    System.out.println("没有签到活动--:" + string + "--" + sess);
-            }else {
-                Tools.logs(Tools.JRQD, Tools.getTime() + "---进入签到---响应实体：" + string + "---SESS:" + sess + "\n\n");
+                }else {
+                    Tools.logs(Tools.JRQD, Tools.getTime() + "---进入签到---响应实体：" + string + "---SESS:" + sess + "\n\n");
 //                System.out.println("---进入签到---响应实体：" + string + "---SESS---:" + sess + "\n");
 
-                sign(bhL[0],bhL[1],sess);
+                    sign(bhL[0],bhL[1],sess);
+                    client.close();
+                    break;
+                }
 
-            }
-
-        } else {
-            Tools.logs(Tools.JRQD, Tools.getTime() + "---进入签到时连接不通---响应实体：" + string + "---SESS:" + sess + "\n\n");
+            } else {
+                Tools.logs(Tools.JRQD, Tools.getTime() + "---进入签到时连接不通---响应实体：" + string + "---SESS:" + sess + "\n\n");
 //            System.out.println("---进入签到时连接不通---响应实体：" + string + "---SESS:" + sess + "\n");
+            }
         }
+
+        if (client != null) {
+            client.close();
+        }
+
     }
 
     private void sign(String cbh, String dbh, String sess) throws Exception {
